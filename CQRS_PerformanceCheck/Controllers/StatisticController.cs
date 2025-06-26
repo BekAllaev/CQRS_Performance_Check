@@ -3,10 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using RedisWithCacheUpdate.Data;
-using RedisWithCacheUpdate.Extensions;
 using RedisWithCacheUpdate.Services;
 using RedisWithCacheUpdate.StatisticsModel;
-using StackExchange.Redis;
 
 namespace RedisWithCacheUpdate.Controllers
 {
@@ -23,10 +21,10 @@ namespace RedisWithCacheUpdate.Controllers
             _dbContext = dbContext;
         }
 
-        [HttpGet("redis")]
+        [HttpGet("de-normalized-table")]
         public async Task<ActionResult<IEnumerable<ProductsByCategory>>> GetProductsByCategoriesFromRedis()
         {
-            var list = (await productsByCateogryCacheService.GetListFromCacheAsync()).ToList();
+            var list = await productsByCateogryCacheService.GetListFromCacheAsync();
 
             return list;
         }

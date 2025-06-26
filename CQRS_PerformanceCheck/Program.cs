@@ -3,15 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using RedisWithCacheUpdate.Data;
 using RedisWithCacheUpdate.Model;
 using RedisWithCacheUpdate.Services;
-using StackExchange.Redis;
 using System.Threading.Tasks;
 
 namespace RedisWithCacheUpdate
 {
     public class Program
     {
-        private const string RedisConnectionStringName = "Redis";
-        private const string SqlServerDbConnectionString = "SqlServer";
+        private const string SqliteDbConnectionString = "Sqlite";
 
         public static async Task Main(string[] args)
         {
@@ -23,20 +21,11 @@ namespace RedisWithCacheUpdate
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 
-            var redisConnectionString = builder.Configuration.GetConnectionString(RedisConnectionStringName);
-
             builder.Services.AddDbContext<AppDbContext>(opt =>
             {
-                var connectionString = builder.Configuration.GetConnectionString(SqlServerDbConnectionString);
-                opt.UseSqlServer(connectionString);
+                var connectionString = builder.Configuration.GetConnectionString(SqliteDbConnectionString);
+                opt.UseSqlite(connectionString);
             });
-
-            if (string.IsNullOrEmpty(redisConnectionString))
-                throw new ArgumentNullException(nameof(redisConnectionString));
-
-            var connectionMultiplexer = await ConnectionMultiplexer.ConnectAsync(redisConnectionString);
-
-            builder.Services.AddSingleton<ConnectionMultiplexer>(connectionMultiplexer);
 
             builder.Services.AddScoped<IProductsByCateogryCacheService, ProductsByCategoryCacheService>();
 
@@ -46,10 +35,9 @@ namespace RedisWithCacheUpdate
 
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            await context.Database.EnsureDeletedAsync();
             context.Database.Migrate();
 
-            await SqlServerSeedData(context);
+            await SeedData(context);
 
             var productsByCategoryCacheService = scope.ServiceProvider.GetRequiredService<IProductsByCateogryCacheService>();
 
@@ -70,18 +58,16 @@ namespace RedisWithCacheUpdate
             app.Run();
         }
 
-        static async Task SqlServerSeedData(AppDbContext context)
+        static async Task SeedData(AppDbContext context)
         {
             // Create a Faker for the Category model.
             var categoryFaker = new Faker<Category>()
-                .RuleFor(c => c.Name, f => f.Commerce.Department())
-                .RuleFor(c => c.Description, f => f.Lorem.Sentence());
+                .RuleFor(c => c.Name, f => $"Category - {f.UniqueIndex}");
 
             // Create a Faker for the Product model.
             // Notice that the CategoryId will be assigned later for each product.
             var productFaker = new Faker<Product>()
-                .RuleFor(p => p.Name, f => f.Commerce.ProductName())
-                .RuleFor(p => p.UnitPrice, f => Convert.ToDouble(f.Commerce.Price()));
+                .RuleFor(p => p.Name, f => $"Product - {f.UniqueIndex}");
 
             // Generate 5 categories.
             var categories = categoryFaker.Generate(200);
