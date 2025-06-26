@@ -39,6 +39,7 @@ namespace RedisWithCacheUpdate
 
             if (TablesAreEmpty(context))
             {
+                // Seed the database with initial data if tables are empty.
                 await SeedData(context);
 
                 var productsByCategoryCacheService = scope.ServiceProvider.GetRequiredService<IProductsByCateogryCacheService>();
