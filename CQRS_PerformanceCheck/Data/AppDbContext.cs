@@ -3,6 +3,7 @@ using System.Reflection.Emit;
 using System;
 using Microsoft.EntityFrameworkCore;
 using RedisWithCacheUpdate.Model;
+using RedisWithCacheUpdate.StatisticsModel;
 
 namespace RedisWithCacheUpdate.Data
 {
@@ -11,6 +12,8 @@ namespace RedisWithCacheUpdate.Data
         public DbSet<Product> Products { get; set; }
 
         public DbSet<Category> Categories { get; set; }
+
+        public DbSet<ProductsByCategory> ProductsByCategories { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
@@ -27,6 +30,9 @@ namespace RedisWithCacheUpdate.Data
 
             modelBuilder.Entity<Category>()
                 .HasKey(x => x.Id);
+
+            modelBuilder.Entity<ProductsByCategory>()
+                .HasKey(x => x.CategoryName);
 
             modelBuilder.Entity<Product>()
                 .HasOne(p => p.Category)        // A Product has one Category
