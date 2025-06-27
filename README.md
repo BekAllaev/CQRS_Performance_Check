@@ -20,3 +20,19 @@ It contains 200 items of Category entity and about 1,100,000 items of Product
 
 ## Results
 
+> Take into account that first several requests will take longer since it takes ASP .NET Core Web API to do some inner routines as a result it takes time, so start to write down the result after several HTTP requests
+
+On this screenshot you can see the request against results of the query
+
+![image](https://github.com/user-attachments/assets/969ec286-da49-4d56-b739-725f8df2e6d3)
+
+On this screenshot you can see the request against endpoint that executes query that uses `GROUP BY` statement in it
+
+![image](https://github.com/user-attachments/assets/bdf872e1-74bd-4e16-8706-ac2ab7d94481)
+
+On this screenshot you can see the request against endpoint that executes query that don't use `GROUP BY` statement in it
+
+![image](https://github.com/user-attachments/assets/3d5270f5-38b5-4b5d-9b5c-f348e6300ab3)
+
+## Conclusion
+I actually see that request against query result is faster than running request on demand. Actually it is faster in about 10 times. The only thing left is to keep updating information that is stored in the table where query result is but user won't feel it like the way he feels how slow query is running in real-time
